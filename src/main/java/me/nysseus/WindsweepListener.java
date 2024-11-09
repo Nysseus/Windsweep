@@ -37,9 +37,7 @@ public class WindsweepListener implements Listener {
         if (!event.getPlayer().isSneaking()) return;
 
         if (bPlayer.canBend(CoreAbility.getAbility(Windsweep.class))) {
-            Windsweep.isJump = true;
-            Windsweep.isBackwards = false;
-            new Windsweep(player);
+            new Windsweep(player, true, false);
         }
     }
 
@@ -57,17 +55,20 @@ public class WindsweepListener implements Listener {
             return;
         }
 
-        if (!event.getPlayer().isSprinting()) {
-            Windsweep.isSprinting = true;
+        if (CoreAbility.hasAbility(player, Windsweep.class)) {
+            if (!event.getPlayer().isSprinting()) {
+                CoreAbility.getAbility(player, Windsweep.class).setSprinting(true);
+            } else {
+                CoreAbility.getAbility(player, Windsweep.class).setSprinting(false);
+                return;
+            }
         } else {
-            Windsweep.isSprinting = false;
-            return;
+            new Windsweep(player, false, false);
+            CoreAbility.getAbility(player, Windsweep.class).setSprinting(true);
         }
 
         if (bPlayer.canBendIgnoreCooldowns(CoreAbility.getAbility(Windsweep.class))) {
-            Windsweep.isJump = false;
-            Windsweep.isBackwards = false;
-            new Windsweep(player);
+            new Windsweep(player, false, false);
         }
     }
 
@@ -97,9 +98,7 @@ public class WindsweepListener implements Listener {
             return;
         }
         if (bPlayer.canBend(CoreAbility.getAbility(Windsweep.class))) {
-            Windsweep.isJump = false;
-            Windsweep.isBackwards = true;
-            new Windsweep(player);
+            new Windsweep(player, false, true);
 
         }
     }

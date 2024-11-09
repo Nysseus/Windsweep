@@ -33,13 +33,13 @@ public class Windsweep extends AirAbility implements AddonAbility {
 
     private int speedAmplifier;
 
-    public static boolean isJump;
-    public static boolean isSprinting;
-    public static boolean isBackwards;
+    private boolean isJump;
+    private boolean isSprinting;
+    private boolean isBackwards;
 
     private Listener listener;
 
-    public Windsweep(Player player) {
+    public Windsweep(Player player, boolean isJump, boolean isBackwards) {
         super(player);
 
         cooldownJump = ConfigManager.getConfig().getLong("ExtraAbilities.Nysseus.Windsweep.Cooldown");
@@ -47,6 +47,9 @@ public class Windsweep extends AirAbility implements AddonAbility {
         speedAmplifier = ConfigManager.getConfig().getInt("ExtraAbilities.Nysseus.Windsweep.Speed");
         velocityBack = ConfigManager.getConfig().getDouble("ExtraAbilities.Nysseus.Windsweep.VelocityBackwards");
         velocityBackHeight = ConfigManager.getConfig().getDouble("ExtraAbilities.Nysseus.Windsweep.BackwardsJumpHeight");
+
+        this.isJump = isJump;
+        this.isBackwards = isBackwards;
 
         if(isJump || isBackwards)
             bPlayer.addCooldown(this);
@@ -163,6 +166,10 @@ public class Windsweep extends AirAbility implements AddonAbility {
                 remove();
             }
         }
+    }
+
+    public void setSprinting(boolean isSprinting) {
+        this.isSprinting = isSprinting;
     }
 
     @Override
