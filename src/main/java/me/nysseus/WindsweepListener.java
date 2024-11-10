@@ -37,6 +37,7 @@ public class WindsweepListener implements Listener {
         if (!event.getPlayer().isSneaking()) return;
 
         if (bPlayer.canBend(CoreAbility.getAbility(Windsweep.class))) {
+            player.setSprinting(false);
             new Windsweep(player, true, false);
         }
     }
@@ -50,6 +51,7 @@ public class WindsweepListener implements Listener {
             event.setCancelled(true);
             return;
         }
+
         if (bPlayer.isChiBlocked()) {
             event.setCancelled(true);
             return;
@@ -98,8 +100,8 @@ public class WindsweepListener implements Listener {
             return;
         }
         if (bPlayer.canBend(CoreAbility.getAbility(Windsweep.class))) {
+            player.setSprinting(false);
             new Windsweep(player, false, true);
-
         }
     }
 }

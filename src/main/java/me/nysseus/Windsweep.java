@@ -22,6 +22,10 @@ public class Windsweep extends AirAbility implements AddonAbility {
     @Attribute(Attribute.COOLDOWN)
     private long cooldownJump;
 
+    private boolean backJump;
+    private boolean sprintBoost;
+    private boolean jump;
+
     @Attribute(Attribute.SPEED)
     private double velocity;
 
@@ -48,13 +52,18 @@ public class Windsweep extends AirAbility implements AddonAbility {
         velocityBack = ConfigManager.getConfig().getDouble("ExtraAbilities.Nysseus.Windsweep.VelocityBackwards");
         velocityBackHeight = ConfigManager.getConfig().getDouble("ExtraAbilities.Nysseus.Windsweep.BackwardsJumpHeight");
 
+        backJump = ConfigManager.getConfig().getBoolean("ExtraAbilities.Nysseus.Windsweep.BackJump");
+        sprintBoost = ConfigManager.getConfig().getBoolean("ExtraAbilities.Nysseus.Windsweep.SprintBoost");
+        jump = ConfigManager.getConfig().getBoolean("ExtraAbilities.Nysseus.Windsweep.Jump");
+
         this.isJump = isJump;
         this.isBackwards = isBackwards;
 
-        if(isJump || isBackwards)
+        if(isJump || isBackwards) {
+            hasLeverage();
             bPlayer.addCooldown(this);
+        }
 
-        hasLeverage();
         start();
     }
 
@@ -111,10 +120,13 @@ public class Windsweep extends AirAbility implements AddonAbility {
 
         ConfigManager.getConfig().addDefault("ExtraAbilities.Nysseus.Windsweep.Speed", 6);
 
-        ConfigManager.getConfig().addDefault("ExtraAbilities.Nysseus.Windsweep.Cooldown", 500);
-
         ConfigManager.getConfig().addDefault("ExtraAbilities.Nysseus.Windsweep.VelocityBackwards", 2);
         ConfigManager.getConfig().addDefault("ExtraAbilities.Nysseus.Windsweep.BackwardsJumpHeight", 1);
+
+        ConfigManager.getConfig().addDefault("ExtraAbilities.Nysseus.Windsweep.Cooldown", 700);
+        ConfigManager.getConfig().addDefault("ExtraAbilities.Nysseus.Windsweep.BackJump", true);
+        ConfigManager.getConfig().addDefault("ExtraAbilities.Nysseus.Windsweep.SprintBoost", true);
+        ConfigManager.getConfig().addDefault("ExtraAbilities.Nysseus.Windsweep.Jump", true);
         ConfigManager.defaultConfig.save();
 
 
@@ -128,7 +140,7 @@ public class Windsweep extends AirAbility implements AddonAbility {
             return;
         }
         // the leap
-        if (isJump) {
+        if (isJump && jump) {
             if (!hasLeverage()) {
                 remove();
                 return;
@@ -141,22 +153,24 @@ public class Windsweep extends AirAbility implements AddonAbility {
             }
         }
         // the sprint boost
-        if(!isJump && isSprinting && !isBackwards) {
-            getAirbendingParticles().display(player.getLocation(), 2, 0, 1.1, 0);
-            getAirbendingParticles().display(player.getLocation(), 2, 0, 1, 0);
+        if(!isJump && !isBackwards && isSprinting && sprintBoost) {
+            getAirbendingParticles().display(player.getLocation(), 1, 0, 1.1, 0);
+            getAirbendingParticles().display(player.getLocation(), 1, 0, 1, 0);
             player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 2, speedAmplifier));
             player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 2, 3));
-            if ((new Random()).nextInt(4) == 0) {
+            if ((new Random()).nextInt(6) == 0) {
                 playAirbendingSound(this.player.getLocation());
+            }
+            if (!player.isSprinting()) {
+                remove();
             }
         } else {
             remove();
         }
         // the backwards jump
-        if(!isJump && isBackwards) {
+        if(!isJump && isBackwards && backJump) {
             if(!hasLeverage()) {
                 remove();
-                return;
             } else {
                 getAirbendingParticles().display(player.getLocation(), 30, (Math.random()), 0.3, (Math.random()));
                 Vector direction = player.getEyeLocation().getDirection().multiply(-velocityBack);
@@ -186,7 +200,7 @@ public class Windsweep extends AirAbility implements AddonAbility {
 
     @Override
     public String getVersion() {
-        return "1.0.0";
+        return "1.1.0";
     }
 
     @Override
