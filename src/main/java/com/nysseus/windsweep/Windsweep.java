@@ -74,24 +74,29 @@ public class Windsweep extends AirAbility implements AddonAbility {
             remove();
         }
 
+        if (!bPlayer.canBendIgnoreCooldowns(this)) {
+            remove();
+            return;
+        }
+
+        switch (this.UsageType) {
+            case LEAP:
+                this.Leap();
+                break;
+            case BACKWARDS:
+                this.Backwards();
+                break;
+        }
         start();
     }
 
     private boolean hasLeverage() {
         Location location = player.getLocation();
-        if (location.getBlock().getRelative(BlockFace.NORTH).getType().isSolid()) {
-            return true;
-        } else if (location.getBlock().getRelative(BlockFace.SOUTH).getType().isSolid()) {
-            return true;
-        } else if (location.getBlock().getRelative(BlockFace.WEST).getType().isSolid()) {
-            return true;
-        } else if (location.getBlock().getRelative(BlockFace.DOWN).getType().isSolid()) {
-            return true;
-        } else if (location.getBlock().getRelative(BlockFace.EAST).getType().isSolid()) {
-            return true;
-        } else {
-            return false;
-        }
+        return location.getBlock().getRelative(BlockFace.NORTH).getType().isSolid()
+        || location.getBlock().getRelative(BlockFace.SOUTH).getType().isSolid()
+        || location.getBlock().getRelative(BlockFace.WEST).getType().isSolid()
+        || location.getBlock().getRelative(BlockFace.DOWN).getType().isSolid()
+        || location.getBlock().getRelative(BlockFace.EAST).getType().isSolid();
     }
 
     @Override
@@ -152,10 +157,10 @@ public class Windsweep extends AirAbility implements AddonAbility {
 
         switch (this.UsageType) {
             case LEAP:
-                this.Leap();
+                this.LeapEffects();
                 break;
             case BACKWARDS:
-                this.Backwards();
+                this.BackwardsEffects();
                 break;
             case SPRINT:
                 this.Sprint();
@@ -175,27 +180,35 @@ public class Windsweep extends AirAbility implements AddonAbility {
         if (!hasLeverage()) {
             remove();
         } else {
-            getAirbendingParticles().display(player.getLocation(), 30, (Math.random()), 0.3, (Math.random()));
+//            getAirbendingParticles().display(player.getLocation(), 30, (Math.random()), 0.3, (Math.random()));
             Vector direction = player.getEyeLocation().getDirection();
             player.setVelocity(direction.clone().multiply(velocity));
-            playAirbendingSound(player.getLocation());
+//            playAirbendingSound(player.getLocation());
             remove();
         }
-
     }
+
+    private void LeapEffects() {
+        // code for the particle effects of the leap
+    }
+
 
     // the backwards jump
     private void Backwards() {
         if (!hasLeverage()) {
             remove();
         } else {
-            getAirbendingParticles().display(player.getLocation(), 30, (Math.random()), 0.3, (Math.random()));
+//            getAirbendingParticles().display(player.getLocation(), 30, (Math.random()), 0.3, (Math.random()));
             Vector direction = player.getEyeLocation().getDirection().multiply(-velocityBack);
             direction.setY(velocityBackHeight);
             player.setVelocity(direction);
-            playAirbendingSound(player.getLocation());
+//            playAirbendingSound(player.getLocation());
             remove();
         }
+    }
+
+    private void BackwardsEffects() {
+        // code for the particle effects of the backwards leap
     }
 
     // the sprint boost
