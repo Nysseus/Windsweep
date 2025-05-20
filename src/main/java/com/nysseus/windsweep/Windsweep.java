@@ -43,6 +43,8 @@ public class Windsweep extends AirAbility implements AddonAbility {
 
     private int speedAmplifier;
 
+    private double duration;
+
     private Listener listener;
 
     public Windsweep(Player player, usageType Usage_Type) {
@@ -74,7 +76,9 @@ public class Windsweep extends AirAbility implements AddonAbility {
             remove();
         }
 
-        if (!bPlayer.canBendIgnoreCooldowns(this)) {
+        if (!bPlayer.canBendIgnoreCooldowns(this)
+        || ((UsageType.equals(usageType.BACKWARDS) || UsageType.equals(usageType.LEAP)) && !hasLeverage())
+        ) {
             remove();
             return;
         }
@@ -97,6 +101,11 @@ public class Windsweep extends AirAbility implements AddonAbility {
         || location.getBlock().getRelative(BlockFace.WEST).getType().isSolid()
         || location.getBlock().getRelative(BlockFace.DOWN).getType().isSolid()
         || location.getBlock().getRelative(BlockFace.EAST).getType().isSolid();
+    }
+
+    private boolean isOnGround() {
+        Location location = player.getLocation();
+        return location.getBlock().getRelative(BlockFace.NORTH).getType().isSolid();
     }
 
     @Override
@@ -180,16 +189,23 @@ public class Windsweep extends AirAbility implements AddonAbility {
         if (!hasLeverage()) {
             remove();
         } else {
-//            getAirbendingParticles().display(player.getLocation(), 30, (Math.random()), 0.3, (Math.random()));
+            getAirbendingParticles().display(player.getLocation(), 30, (Math.random()), 0.3, (Math.random()));
             Vector direction = player.getEyeLocation().getDirection();
             player.setVelocity(direction.clone().multiply(velocity));
-//            playAirbendingSound(player.getLocation());
-            remove();
+            playAirbendingSound(player.getLocation());
         }
     }
 
     private void LeapEffects() {
         // code for the particle effects of the leap
+        this.duration = 300;
+        getAirbendingParticles().display(player.getLocation(), 10, (Math.random()), 0.3, (Math.random()));
+        if ((new Random()).nextInt(3) == 0) {
+            playAirbendingSound(this.player.getLocation());
+        }
+        if ((System.currentTimeMillis() > this.getStartTime() + duration) || isOnGround()) {
+            remove();
+        }
     }
 
 
@@ -198,17 +214,24 @@ public class Windsweep extends AirAbility implements AddonAbility {
         if (!hasLeverage()) {
             remove();
         } else {
-//            getAirbendingParticles().display(player.getLocation(), 30, (Math.random()), 0.3, (Math.random()));
+            getAirbendingParticles().display(player.getLocation(), 30, (Math.random()), 0.3, (Math.random()));
             Vector direction = player.getEyeLocation().getDirection().multiply(-velocityBack);
             direction.setY(velocityBackHeight);
             player.setVelocity(direction);
-//            playAirbendingSound(player.getLocation());
-            remove();
+            playAirbendingSound(player.getLocation());
         }
     }
 
     private void BackwardsEffects() {
         // code for the particle effects of the backwards leap
+        this.duration = 150;
+        getAirbendingParticles().display(player.getLocation(), 10, (Math.random()), 0.3, (Math.random()));
+        if ((new Random()).nextInt(3) == 0) {
+            playAirbendingSound(this.player.getLocation());
+        }
+        if ((System.currentTimeMillis() > this.getStartTime() + duration) || isOnGround()) {
+            remove();
+        }
     }
 
     // the sprint boost
@@ -237,11 +260,11 @@ public class Windsweep extends AirAbility implements AddonAbility {
 
     @Override
     public String getDescription() {
-        return "This basic airbending technique allows airbenders to jump from any surface where they might have leverage, such as the ground, but also walls. They're also able to aid their own movements on the ground";
+        return "This basic airbending technique allows airbenders to jump from any surface where they might have leverage, such as the ground, but also walls. They're also able to aid their own movements on the ground by sprinting.";
     }
 
     @Override
     public String getInstructions() {
-        return "Tap sneak whenever on the ground, or right next to a solid block. Click to jump backwards. Sprint while having the ability selected for a boost to your agility.";
+        return "Tap sneak whenever on the ground or right next to a solid block to jump in the direction you are looking. Click to jump backwards instead. Sprint while having the ability selected for a boost to your agility.";
     }
 }
