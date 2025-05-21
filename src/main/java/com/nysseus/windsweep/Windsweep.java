@@ -5,6 +5,7 @@ import com.projectkorra.projectkorra.ability.AddonAbility;
 import com.projectkorra.projectkorra.ability.AirAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.configuration.ConfigManager;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.BlockFace;
@@ -131,6 +132,9 @@ public class Windsweep extends AirAbility implements AddonAbility {
 
     @Override
     public void load() {
+        System.out.println("let us hope this is noticed");
+
+
         listener = new WindsweepListener();
         ProjectKorra.plugin.getServer().getPluginManager().registerEvents(listener, ProjectKorra.plugin);
 
@@ -178,7 +182,6 @@ public class Windsweep extends AirAbility implements AddonAbility {
 
     @Override
     public void stop() {
-        remove();
         HandlerList.unregisterAll(listener);
         ProjectKorra.plugin.getServer().getPluginManager().removePermission("bending.ability.Windsweep");
     }
@@ -270,9 +273,9 @@ public class Windsweep extends AirAbility implements AddonAbility {
     @Override
     public boolean isEnabled() {
         boolean result;
-        if(!(ConfigManager.defaultConfig.get().getBoolean("ExtraAbilities.Nysseus.Windsweep.BackJumpEnabled")) &&
-                !(ConfigManager.defaultConfig.get().getBoolean("ExtraAbilities.Nysseus.Windsweep.SprintBoostEnabled")) &&
-                !(ConfigManager.defaultConfig.get().getBoolean("ExtraAbilities.Nysseus.Windsweep.JumpEnabled")))
+        if(!(ConfigManager.defaultConfig.get().getBoolean("ExtraAbilities.Nysseus.Windsweep.BackJumpEnabled", true)) &&
+                !(ConfigManager.defaultConfig.get().getBoolean("ExtraAbilities.Nysseus.Windsweep.SprintBoostEnabled", true)) &&
+                !(ConfigManager.defaultConfig.get().getBoolean("ExtraAbilities.Nysseus.Windsweep.JumpEnabled", true)))
         {
             result = false;
         } else {
