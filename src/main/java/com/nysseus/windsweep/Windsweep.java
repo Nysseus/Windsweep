@@ -45,22 +45,21 @@ public class Windsweep extends AirAbility implements AddonAbility {
     private int speedAmplifier;
 
     private double duration;
-//    private static PotionEffectType jumpEffectType;
 
     private Listener listener;
 
     public Windsweep(Player player, usageType Usage_Type) {
         super(player);
 
-        cooldownJump = ConfigManager.getConfig().getLong("ExtraAbilities.Nysseus.Windsweep.Cooldown");
-        velocity = ConfigManager.getConfig().getDouble("ExtraAbilities.Nysseus.Windsweep.Velocity");
-        speedAmplifier = ConfigManager.getConfig().getInt("ExtraAbilities.Nysseus.Windsweep.Speed");
-        velocityBack = ConfigManager.getConfig().getDouble("ExtraAbilities.Nysseus.Windsweep.VelocityBackwards");
-        velocityBackHeight = ConfigManager.getConfig().getDouble("ExtraAbilities.Nysseus.Windsweep.BackwardsJumpHeight");
+        cooldownJump = ConfigManager.defaultConfig.get().getLong("ExtraAbilities.Nysseus.Windsweep.Cooldown");
+        velocity = ConfigManager.defaultConfig.get().getDouble("ExtraAbilities.Nysseus.Windsweep.Velocity");
+        speedAmplifier = ConfigManager.defaultConfig.get().getInt("ExtraAbilities.Nysseus.Windsweep.Speed");
+        velocityBack = ConfigManager.defaultConfig.get().getDouble("ExtraAbilities.Nysseus.Windsweep.VelocityBackwards");
+        velocityBackHeight = ConfigManager.defaultConfig.get().getDouble("ExtraAbilities.Nysseus.Windsweep.BackwardsJumpHeight");
 
-        backJumpEnabled = ConfigManager.getConfig().getBoolean("ExtraAbilities.Nysseus.Windsweep.BackJumpEnabled");
-        sprintBoostEnabled = ConfigManager.getConfig().getBoolean("ExtraAbilities.Nysseus.Windsweep.SprintBoostEnabled");
-        jumpEnabled = ConfigManager.getConfig().getBoolean("ExtraAbilities.Nysseus.Windsweep.JumpEnabled");
+        backJumpEnabled = ConfigManager.defaultConfig.get().getBoolean("ExtraAbilities.Nysseus.Windsweep.BackJumpEnabled", true);
+        sprintBoostEnabled = ConfigManager.defaultConfig.get().getBoolean("ExtraAbilities.Nysseus.Windsweep.SprintBoostEnabled", true);
+        jumpEnabled = ConfigManager.defaultConfig.get().getBoolean("ExtraAbilities.Nysseus.Windsweep.JumpEnabled", true);
 
         this.UsageType = Usage_Type;
 
@@ -103,11 +102,6 @@ public class Windsweep extends AirAbility implements AddonAbility {
         || location.getBlock().getRelative(BlockFace.WEST).getType().isSolid()
         || location.getBlock().getRelative(BlockFace.DOWN).getType().isSolid()
         || location.getBlock().getRelative(BlockFace.EAST).getType().isSolid();
-    }
-
-    private boolean isOnGround() {
-        Location location = player.getLocation();
-        return location.getBlock().getRelative(BlockFace.DOWN).getType().isSolid();
     }
 
     @Override
@@ -155,27 +149,12 @@ public class Windsweep extends AirAbility implements AddonAbility {
         ConfigManager.getConfig().addDefault("ExtraAbilities.Nysseus.Windsweep.JumpEnabled", true);
         ConfigManager.defaultConfig.save();
 
-//        initJumpEffectType();
-
-        ProjectKorra.plugin.getLogger().info(getName() + " " + getVersion() + " by " + getAuthor() + " has been successfully enabled.");
+        if (PotionEffectType.getByKey(NamespacedKey.minecraft("jump_boost")) != null) {
+            ProjectKorra.plugin.getLogger().info(getName() + " " + getVersion() + " by " + getAuthor() + " has been successfully enabled.");
+        } else {
+            ProjectKorra.plugin.getLogger().warning(getName() + " " + getVersion() + " by " + getAuthor() + " did not load properly. Expect a lot of errors.");
+        }
     }
-
-//    public static void initJumpEffectType() {
-//        if (jumpEffectType != null) return;
-//
-//        try {
-//            jumpEffectType = PotionEffectType.getByName("JUMP_BOOST");
-//        } catch (IllegalArgumentException ex) {
-//            jumpEffectType = PotionEffectType.getByName("JUMP");
-//        }
-//    }
-//
-//    public static PotionEffectType getJumpEffectType() {
-//        if (jumpEffectType == null) {
-//            initJumpEffectType();
-//        }
-//        return jumpEffectType;
-//    }
 
     @Override
     public void progress() {
@@ -223,7 +202,7 @@ public class Windsweep extends AirAbility implements AddonAbility {
         if ((new Random()).nextInt(3) == 0) {
             playAirbendingSound(this.player.getLocation());
         }
-        if ((System.currentTimeMillis() > this.getStartTime() + duration) || isOnGround()) {
+        if (System.currentTimeMillis() > this.getStartTime() + duration) {
             remove();
         }
     }
@@ -249,7 +228,7 @@ public class Windsweep extends AirAbility implements AddonAbility {
         if ((new Random()).nextInt(3) == 0) {
             playAirbendingSound(this.player.getLocation());
         }
-        if ((System.currentTimeMillis() > this.getStartTime() + duration) || isOnGround()) {
+        if (System.currentTimeMillis() > this.getStartTime() + duration) {
             remove();
         }
     }
@@ -286,5 +265,19 @@ public class Windsweep extends AirAbility implements AddonAbility {
     @Override
     public String getInstructions() {
         return "Tap sneak whenever on the ground or right next to a solid block to jump in the direction you are looking. Click to jump backwards instead. Sprint while having the ability selected for a boost to your agility.";
+    }
+
+    @Override
+    public boolean isEnabled() {
+        boolean result;
+        if(!(ConfigManager.defaultConfig.get().getBoolean("ExtraAbilities.Nysseus.Windsweep.BackJumpEnabled")) &&
+                !(ConfigManager.defaultConfig.get().getBoolean("ExtraAbilities.Nysseus.Windsweep.SprintBoostEnabled")) &&
+                !(ConfigManager.defaultConfig.get().getBoolean("ExtraAbilities.Nysseus.Windsweep.JumpEnabled")))
+        {
+            result = false;
+        } else {
+            result = true;
+        }
+        return result;
     }
 }
