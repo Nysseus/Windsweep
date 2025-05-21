@@ -6,6 +6,7 @@ import com.projectkorra.projectkorra.ability.AirAbility;
 import com.projectkorra.projectkorra.attribute.Attribute;
 import com.projectkorra.projectkorra.configuration.ConfigManager;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
@@ -44,6 +45,7 @@ public class Windsweep extends AirAbility implements AddonAbility {
     private int speedAmplifier;
 
     private double duration;
+//    private static PotionEffectType jumpEffectType;
 
     private Listener listener;
 
@@ -105,7 +107,7 @@ public class Windsweep extends AirAbility implements AddonAbility {
 
     private boolean isOnGround() {
         Location location = player.getLocation();
-        return location.getBlock().getRelative(BlockFace.NORTH).getType().isSolid();
+        return location.getBlock().getRelative(BlockFace.DOWN).getType().isSolid();
     }
 
     @Override
@@ -140,7 +142,7 @@ public class Windsweep extends AirAbility implements AddonAbility {
 
         ProjectKorra.plugin.getServer().getPluginManager().addPermission(new Permission("bending.ability.Windsweep"));
 
-        ConfigManager.getConfig().addDefault("ExtraAbilities.Nysseus.Windsweep.Velocity", 3);
+        ConfigManager.getConfig().addDefault("ExtraAbilities.Nysseus.Windsweep.Velocity", 4);
 
         ConfigManager.getConfig().addDefault("ExtraAbilities.Nysseus.Windsweep.Speed", 6);
 
@@ -153,9 +155,27 @@ public class Windsweep extends AirAbility implements AddonAbility {
         ConfigManager.getConfig().addDefault("ExtraAbilities.Nysseus.Windsweep.JumpEnabled", true);
         ConfigManager.defaultConfig.save();
 
+//        initJumpEffectType();
 
         ProjectKorra.plugin.getLogger().info(getName() + " " + getVersion() + " by " + getAuthor() + " has been successfully enabled.");
     }
+
+//    public static void initJumpEffectType() {
+//        if (jumpEffectType != null) return;
+//
+//        try {
+//            jumpEffectType = PotionEffectType.getByName("JUMP_BOOST");
+//        } catch (IllegalArgumentException ex) {
+//            jumpEffectType = PotionEffectType.getByName("JUMP");
+//        }
+//    }
+//
+//    public static PotionEffectType getJumpEffectType() {
+//        if (jumpEffectType == null) {
+//            initJumpEffectType();
+//        }
+//        return jumpEffectType;
+//    }
 
     @Override
     public void progress() {
@@ -239,7 +259,7 @@ public class Windsweep extends AirAbility implements AddonAbility {
         getAirbendingParticles().display(player.getLocation(), 1, 0, 1.1, 0);
         getAirbendingParticles().display(player.getLocation(), 1, 0, 1, 0);
         player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 2, speedAmplifier));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 2, 3));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.getByKey(NamespacedKey.minecraft("jump_boost")), 2, 3));
         if ((new Random()).nextInt(6) == 0) {
             playAirbendingSound(this.player.getLocation());
         }
